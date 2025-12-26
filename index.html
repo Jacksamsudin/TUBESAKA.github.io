@@ -3,35 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <title>TUBES AKA - Analisis Kompleksitas Algoritma</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 40px;
-      background: #f4f6f8;
+      background-color: #f4f6f8;
     }
-    h1, h2 {
+    h1, h2, h3 {
       color: #2c3e50;
     }
     .box {
       background: white;
       padding: 20px;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     input, button {
       padding: 8px;
-      margin: 5px 0;
+      margin: 6px 0;
     }
     button {
-      background: #3498db;
+      background-color: #3498db;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     button:hover {
-      background: #2980b9;
+      background-color: #2980b9;
     }
     .result {
       font-weight: bold;
@@ -39,11 +43,13 @@
     }
     footer {
       margin-top: 40px;
-      color: #555;
       font-size: 14px;
+      color: #555;
+      text-align: center;
     }
   </style>
 </head>
+
 <body>
 
 <h1>Tugas Besar Analisis Kompleksitas Algoritma</h1>
@@ -51,60 +57,90 @@
 <div class="box">
   <h2>Studi Kasus</h2>
   <p>
-    Studi kasus yang diangkat adalah <b>perhitungan total konsumsi listrik harian</b>
+    Studi kasus yang digunakan adalah <b>perhitungan total konsumsi listrik harian</b>
     berdasarkan data penggunaan listrik (kWh) selama beberapa hari.
-    Permasalahan ini diselesaikan menggunakan dua pendekatan algoritma:
-    <b>iteratif</b> dan <b>rekursif</b>.
+    Permasalahan ini diselesaikan menggunakan dua pendekatan algoritma, yaitu
+    <b>iteratif</b> dan <b>rekursif</b>, untuk dibandingkan dari sisi efisiensi.
   </p>
 </div>
 
 <div class="box">
   <h2>Input Data Konsumsi Listrik</h2>
-  <label>Jumlah hari:</label><br>
-  <input type="number" id="jumlahHari" min="1"><br>
+  <label>Jumlah Hari:</label><br>
+  <input type="number" id="jumlahHari" min="1">
+  <br>
   <button onclick="buatInput()">Buat Input</button>
 
   <div id="inputData"></div>
-  <button onclick="hitung()">Hitung Total</button>
+
+  <button onclick="hitungTotal()">Hitung Total</button>
 
   <div class="result" id="hasil"></div>
 </div>
 
 <div class="box">
-  <h2>Algoritma yang Digunakan</h2>
+  <h2>Deskripsi Algoritma</h2>
 
-  <h3>1. Algoritma Iteratif</h3>
+  <h3>Algoritma Iteratif</h3>
   <p>
-    Algoritma iteratif menjumlahkan data konsumsi listrik menggunakan perulangan.
-    Setiap elemen array diproses satu per satu hingga seluruh data dijumlahkan.
+    Algoritma iteratif menghitung total konsumsi listrik dengan menggunakan perulangan
+    untuk menjumlahkan seluruh elemen array satu per satu.
   </p>
   <p><b>Kompleksitas Waktu:</b> O(n)</p>
 
-  <h3>2. Algoritma Rekursif</h3>
+  <h3>Algoritma Rekursif</h3>
   <p>
-    Algoritma rekursif menjumlahkan data dengan memanggil fungsi secara berulang
-    hingga mencapai kondisi dasar (base case).
+    Algoritma rekursif menghitung total konsumsi listrik dengan memanggil fungsi secara
+    berulang hingga mencapai kondisi dasar (base case).
   </p>
   <p><b>Kompleksitas Waktu:</b> O(n)</p>
 </div>
 
 <div class="box">
+  <h2>Grafik Perbandingan Running Time</h2>
+  <p>
+    Grafik berikut menunjukkan perbandingan waktu eksekusi algoritma iteratif dan rekursif
+    berdasarkan ukuran input (jumlah data).
+  </p>
+  <canvas id="runtimeChart"></canvas>
+</div>
+
+<div class="box">
   <h2>Analisis Perbandingan</h2>
   <p>
-    Berdasarkan hasil pengujian, kedua algoritma memiliki kompleksitas waktu yang sama,
-    yaitu O(n). Namun, algoritma iteratif lebih efisien dalam penggunaan memori
-    karena tidak memerlukan stack pemanggilan fungsi seperti pada algoritma rekursif.
+    Berdasarkan grafik running time, algoritma iteratif memiliki waktu eksekusi yang
+    lebih stabil dibandingkan algoritma rekursif. Walaupun kedua algoritma memiliki
+    kompleksitas waktu O(n), algoritma rekursif memiliki overhead pemanggilan fungsi
+    yang menyebabkan waktu eksekusi relatif lebih besar.
   </p>
 </div>
 
 <footer>
   <p>
     Tugas Besar Analisis Kompleksitas Algoritma<br>
-    Program Studi Informatika – Telkom University
+    Informatika – Telkom University
   </p>
 </footer>
 
 <script>
+  // =============================
+  // ALGORITMA ITERATIF
+  function totalIteratif(data) {
+    let total = 0;
+    for (let i = 0; i < data.length; i++) {
+      total += data[i];
+    }
+    return total;
+  }
+
+  // ALGORITMA REKURSIF
+  function totalRekursif(data, n) {
+    if (n === 0) return 0;
+    return data[n - 1] + totalRekursif(data, n - 1);
+  }
+
+  // =============================
+  // INPUT DINAMIS
   function buatInput() {
     const n = document.getElementById("jumlahHari").value;
     const container = document.getElementById("inputData");
@@ -118,20 +154,8 @@
     }
   }
 
-  function totalIteratif(data) {
-    let total = 0;
-    for (let i = 0; i < data.length; i++) {
-      total += data[i];
-    }
-    return total;
-  }
-
-  function totalRekursif(data, n) {
-    if (n === 0) return 0;
-    return data[n - 1] + totalRekursif(data, n - 1);
-  }
-
-  function hitung() {
+  // HITUNG TOTAL
+  function hitungTotal() {
     const inputs = document.querySelectorAll(".data");
     let data = [];
 
@@ -143,9 +167,73 @@
     const rekursif = totalRekursif(data, data.length);
 
     document.getElementById("hasil").innerHTML =
-      "Total Iteratif: " + iteratif + " kWh<br>" +
-      "Total Rekursif: " + rekursif + " kWh";
+      "Total Konsumsi (Iteratif): " + iteratif + " kWh<br>" +
+      "Total Konsumsi (Rekursif): " + rekursif + " kWh";
   }
+
+  // =============================
+  // GRAFIK RUNNING TIME
+  function tampilkanGrafik() {
+    let sizes = [10, 50, 100, 200, 500];
+    let timeIteratif = [];
+    let timeRekursif = [];
+
+    sizes.forEach(n => {
+      let data = [];
+      for (let i = 0; i < n; i++) {
+        data.push(Math.floor(Math.random() * 10));
+      }
+
+      let start = performance.now();
+      totalIteratif(data);
+      let end = performance.now();
+      timeIteratif.push(end - start);
+
+      start = performance.now();
+      totalRekursif(data, data.length);
+      end = performance.now();
+      timeRekursif.push(end - start);
+    });
+
+    const ctx = document.getElementById("runtimeChart");
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: sizes,
+        datasets: [
+          {
+            label: "Iteratif",
+            data: timeIteratif,
+            borderWidth: 2
+          },
+          {
+            label: "Rekursif",
+            data: timeRekursif,
+            borderWidth: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Ukuran Input (n)"
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: "Running Time (ms)"
+            }
+          }
+        }
+      }
+    });
+  }
+
+  window.onload = tampilkanGrafik;
 </script>
 
 </body>
