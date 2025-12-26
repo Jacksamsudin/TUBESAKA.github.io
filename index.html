@@ -142,57 +142,69 @@
   // =============================
   // INPUT DINAMIS
   function buatInput() {
-    const n = document.getElementById("jumlahHari").value;
+    const n = parseInt(document.getElementById("jumlahHari").value);
     const container = document.getElementById("inputData");
     container.innerHTML = "";
+
+    if (isNaN(n) || n <= 0) {
+      container.innerHTML = "<p>Masukkan jumlah hari yang valid.</p>";
+      return;
+    }
 
     for (let i = 0; i < n; i++) {
       container.innerHTML += `
         Hari ke-${i + 1}:
-        <input type="number" class="data"><br>
+        <input type="number" class="data" min="0"><br>
       `;
     }
   }
 
+  // =============================
   // HITUNG TOTAL
   function hitungTotal() {
     const inputs = document.querySelectorAll(".data");
     let data = [];
 
     inputs.forEach(input => {
-      data.push(parseInt(input.value));
+      let value = parseInt(input.value);
+      data.push(isNaN(value) ? 0 : value);
     });
 
     const iteratif = totalIteratif(data);
     const rekursif = totalRekursif(data, data.length);
 
     document.getElementById("hasil").innerHTML =
-      "Total Konsumsi (Iteratif): " + iteratif + " kWh<br>" +
-      "Total Konsumsi (Rekursif): " + rekursif + " kWh";
+      `Total Konsumsi (Iteratif): ${iteratif} kWh<br>
+       Total Konsumsi (Rekursif): ${rekursif} kWh`;
   }
 
   // =============================
   // GRAFIK RUNNING TIME
   function tampilkanGrafik() {
-    let sizes = [10, 50, 100, 200, 500];
+    const sizes = [1, 10, 100, 500, 1000, 5000, 10000];
+    const REPEAT = 20;
+
     let timeIteratif = [];
     let timeRekursif = [];
 
     sizes.forEach(n => {
-      let data = [];
-      for (let i = 0; i < n; i++) {
-        data.push(Math.floor(Math.random() * 10));
-      }
+      let data = Array.from({ length: n }, () => Math.floor(Math.random() * 10));
 
+      // ITERATIF
       let start = performance.now();
-      totalIteratif(data);
+      for (let i = 0; i < REPEAT; i++) {
+        totalIteratif(data);
+      }
       let end = performance.now();
-      timeIteratif.push(end - start);
+      timeIteratif.push((end - start) / REPEAT);
 
+      // REKURSIF
       start = performance.now();
-      totalRekursif(data, data.length);
+      for (let i = 0; i < REPEAT; i++) {
+        totalRekursif(data, data.length);
+      }
       end = performance.now();
-      timeRekursif.push(end - start);
+      timeRekursif.push((end - start) / REPEAT);
     });
 
     const ctx = document.getElementById("runtimeChart");
@@ -204,17 +216,26 @@
           {
             label: "Iteratif",
             data: timeIteratif,
-            borderWidth: 2
+            borderColor: "blue",
+            backgroundColor: "blue",
+            tension: 0.3
           },
           {
             label: "Rekursif",
             data: timeRekursif,
-            borderWidth: 2
+            borderColor: "red",
+            backgroundColor: "red",
+            tension: 0.3
           }
         ]
       },
       options: {
         responsive: true,
+        plugins: {
+          legend: {
+            position: "top"
+          }
+        },
         scales: {
           x: {
             title: {
@@ -236,5 +257,3 @@
   window.onload = tampilkanGrafik;
 </script>
 
-</body>
-</html>
