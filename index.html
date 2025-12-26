@@ -2,129 +2,311 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TUBES AKA - Analisis Kompleksitas Algoritma</title>
-
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      background-color: #f4f6f8;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      min-height: 100vh;
+      padding: 20px;
     }
-    h1, h2, h3 {
-      color: #2c3e50;
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
     }
+
+    h1 {
+      text-align: center;
+      color: white;
+      font-size: 2.2em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.95);
+      font-size: 1em;
+      margin-bottom: 30px;
+    }
+
     .box {
       background: white;
-      padding: 20px;
-      margin-bottom: 25px;
+      padding: 25px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+      font-size: 1.6em;
+      border-bottom: 3px solid #4facfe;
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      color: #34495e;
+      margin: 15px 0 10px;
+      font-size: 1.2em;
+    }
+
+    p {
+      line-height: 1.7;
+      color: #555;
+      margin-bottom: 12px;
+    }
+
+    .input-group {
+      margin: 15px 0;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
       border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      font-size: 15px;
+      transition: border-color 0.3s;
     }
-    input, button {
-      padding: 8px;
-      margin: 6px 0;
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #4facfe;
     }
+
     button {
-      background-color: #3498db;
+      background: #4facfe;
       color: white;
       border: none;
-      border-radius: 5px;
+      padding: 10px 25px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
+      transition: background 0.3s;
+      margin: 8px 5px 8px 0;
     }
+
     button:hover {
-      background-color: #2980b9;
+      background: #3498db;
     }
-    .result {
-      font-weight: bold;
-      margin-top: 10px;
+
+    button.secondary {
+      background: #95a5a6;
     }
-    footer {
-      margin-top: 40px;
-      font-size: 14px;
+
+    button.secondary:hover {
+      background: #7f8c8d;
+    }
+
+    #inputData {
+      margin: 15px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .data-input label {
+      font-size: 13px;
       color: #555;
+    }
+
+    .result {
+      background: #e8f5e9;
+      border-left: 4px solid #4caf50;
+      color: #2e7d32;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 1.1em;
+    }
+
+    .code-container {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      display: none;
+    }
+
+    .code-container.show {
+      display: block;
+    }
+
+    pre {
+      background: #282c34;
+      color: #abb2bf;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .code-title {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .complexity-badge {
+      background: #4facfe;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    #runtimeChart {
+      max-height: 400px;
+      margin-top: 20px;
+    }
+
+    footer {
       text-align: center;
+      color: white;
+      padding: 25px;
+      margin-top: 30px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 1.8em; }
+      .box { padding: 20px; }
+      #inputData { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
+  <div class="container">
+    <h1>Tugas Besar Analisis Kompleksitas Algoritma</h1>
+    <p class="subtitle">Informatika – Telkom University</p>
 
-<h1>Tugas Besar Analisis Kompleksitas Algoritma</h1>
+    <div class="box">
+      <h2>Studi Kasus</h2>
+      <p>
+        Studi kasus yang digunakan adalah <b>perhitungan total konsumsi listrik harian</b>
+        berdasarkan data penggunaan listrik (kWh) selama beberapa hari.
+        Permasalahan ini diselesaikan menggunakan dua pendekatan algoritma, yaitu
+        <b>iteratif</b> dan <b>rekursif</b>, untuk dibandingkan dari sisi efisiensi.
+      </p>
+    </div>
 
-<div class="box">
-  <h2>Studi Kasus</h2>
-  <p>
-    Studi kasus yang digunakan adalah <b>perhitungan total konsumsi listrik harian</b>
-    berdasarkan data penggunaan listrik (kWh) selama beberapa hari.
-    Permasalahan ini diselesaikan menggunakan dua pendekatan algoritma, yaitu
-    <b>iteratif</b> dan <b>rekursif</b>, untuk dibandingkan dari sisi efisiensi.
-  </p>
-</div>
+    <div class="box">
+      <h2>Input Data Konsumsi Listrik</h2>
+      <div class="input-group">
+        <label>Jumlah Hari:</label>
+        <input type="number" id="jumlahHari" min="1" placeholder="Masukkan jumlah hari...">
+      </div>
+      <button onclick="buatInput()">Buat Input</button>
 
-<div class="box">
-  <h2>Input Data Konsumsi Listrik</h2>
-  <label>Jumlah Hari:</label><br>
-  <input type="number" id="jumlahHari" min="1">
-  <br>
-  <button onclick="buatInput()">Buat Input</button>
+      <div id="inputData"></div>
 
-  <div id="inputData"></div>
+      <button onclick="hitungTotal()">Hitung Total</button>
 
-  <button onclick="hitungTotal()">Hitung Total</button>
+      <div id="hasil"></div>
+    </div>
 
-  <div class="result" id="hasil"></div>
-</div>
+    <div class="box">
+      <h2>Deskripsi Algoritma</h2>
 
-<div class="box">
-  <h2>Deskripsi Algoritma</h2>
+      <h3>Algoritma Iteratif</h3>
+      <p>
+        Algoritma iteratif menghitung total konsumsi listrik dengan menggunakan perulangan
+        untuk menjumlahkan seluruh elemen array satu per satu.
+      </p>
+      <p><b>Kompleksitas Waktu:</b> O(n)</p>
+      <button class="secondary" onclick="toggleCode('iteratif')">Lihat Kode</button>
 
-  <h3>Algoritma Iteratif</h3>
-  <p>
-    Algoritma iteratif menghitung total konsumsi listrik dengan menggunakan perulangan
-    untuk menjumlahkan seluruh elemen array satu per satu.
-  </p>
-  <p><b>Kompleksitas Waktu:</b> O(n)</p>
+      <div id="code-iteratif" class="code-container">
+        <div class="code-header">
+          <span class="code-title">Kode Iteratif</span>
+          <span class="complexity-badge">O(n)</span>
+        </div>
+        <pre><code>function totalIteratif(data) {
+  let total = 0;
+  for (let i = 0; i < data.length; i++) {
+    total += data[i];
+  }
+  return total;
+}</code></pre>
+      </div>
 
-  <h3>Algoritma Rekursif</h3>
-  <p>
-    Algoritma rekursif menghitung total konsumsi listrik dengan memanggil fungsi secara
-    berulang hingga mencapai kondisi dasar (base case).
-  </p>
-  <p><b>Kompleksitas Waktu:</b> O(n)</p>
-</div>
+      <h3>Algoritma Rekursif</h3>
+      <p>
+        Algoritma rekursif menghitung total konsumsi listrik dengan memanggil fungsi secara
+        berulang hingga mencapai kondisi dasar (base case).
+      </p>
+      <p><b>Kompleksitas Waktu:</b> O(n)</p>
+      <button class="secondary" onclick="toggleCode('rekursif')">Lihat Kode</button>
 
-<div class="box">
-  <h2>Grafik Perbandingan Running Time</h2>
-  <p>
-    Grafik berikut menunjukkan perbandingan waktu eksekusi algoritma iteratif dan rekursif
-    berdasarkan ukuran input (jumlah data).
-  </p>
-  <canvas id="runtimeChart"></canvas>
-</div>
+      <div id="code-rekursif" class="code-container">
+        <div class="code-header">
+          <span class="code-title">Kode Rekursif</span>
+          <span class="complexity-badge">O(n)</span>
+        </div>
+        <pre><code>function totalRekursif(data, n) {
+  if (n === 0) return 0;
+  return data[n - 1] + totalRekursif(data, n - 1);
+}</code></pre>
+      </div>
+    </div>
 
-<div class="box">
-  <h2>Analisis Perbandingan</h2>
-  <p>
-    Berdasarkan grafik running time, algoritma iteratif memiliki waktu eksekusi yang
-    lebih stabil dibandingkan algoritma rekursif. Walaupun kedua algoritma memiliki
-    kompleksitas waktu O(n), algoritma rekursif memiliki overhead pemanggilan fungsi
-    yang menyebabkan waktu eksekusi relatif lebih besar.
-  </p>
-</div>
+    <div class="box">
+      <h2>Grafik Perbandingan Running Time</h2>
+      <p>
+        Grafik berikut menunjukkan perbandingan waktu eksekusi algoritma iteratif dan rekursif
+        berdasarkan ukuran input (jumlah data).
+      </p>
+      <canvas id="runtimeChart"></canvas>
+    </div>
 
-<footer>
-  <p>
-    Tugas Besar Analisis Kompleksitas Algoritma<br>
-    Informatika – Telkom University
-  </p>
-</footer>
+    <div class="box">
+      <h2>Analisis Perbandingan</h2>
+      <p>
+        Berdasarkan grafik running time, algoritma iteratif memiliki waktu eksekusi yang
+        lebih stabil dibandingkan algoritma rekursif. Walaupun kedua algoritma memiliki
+        kompleksitas waktu O(n), algoritma rekursif memiliki overhead pemanggilan fungsi
+        yang menyebabkan waktu eksekusi relatif lebih besar.
+      </p>
+    </div>
+
+    <footer>
+      <p>
+        Tugas Besar Analisis Kompleksitas Algoritma<br>
+        Informatika – Telkom University
+      </p>
+    </footer>
+  </div>
 
 <script>
-  // =============================
-  // ALGORITMA ITERATIF
   function totalIteratif(data) {
     let total = 0;
     for (let i = 0; i < data.length; i++) {
@@ -133,34 +315,37 @@
     return total;
   }
 
-  // ALGORITMA REKURSIF
   function totalRekursif(data, n) {
     if (n === 0) return 0;
     return data[n - 1] + totalRekursif(data, n - 1);
   }
 
-  // =============================
-  // INPUT DINAMIS
+  function toggleCode(type) {
+    const codeDiv = document.getElementById('code-' + type);
+    codeDiv.classList.toggle('show');
+  }
+
   function buatInput() {
     const n = parseInt(document.getElementById("jumlahHari").value);
     const container = document.getElementById("inputData");
     container.innerHTML = "";
 
     if (isNaN(n) || n <= 0) {
-      container.innerHTML = "<p>Masukkan jumlah hari yang valid.</p>";
+      container.innerHTML = "<p style='color: #e74c3c;'>Masukkan jumlah hari yang valid.</p>";
       return;
     }
 
     for (let i = 0; i < n; i++) {
-      container.innerHTML += `
-        Hari ke-${i + 1}:
-        <input type="number" class="data" min="0"><br>
+      const div = document.createElement('div');
+      div.className = 'data-input';
+      div.innerHTML = `
+        <label>Hari ke-${i + 1}:</label>
+        <input type="number" class="data" min="0" placeholder="kWh">
       `;
+      container.appendChild(div);
     }
   }
 
-  // =============================
-  // HITUNG TOTAL
   function hitungTotal() {
     const inputs = document.querySelectorAll(".data");
     let data = [];
@@ -170,17 +355,23 @@
       data.push(isNaN(value) ? 0 : value);
     });
 
+    if (data.length === 0) {
+      document.getElementById("hasil").innerHTML = 
+        "<p style='color: #e74c3c;'>Silakan buat input terlebih dahulu.</p>";
+      return;
+    }
+
     const iteratif = totalIteratif(data);
     const rekursif = totalRekursif(data, data.length);
 
     document.getElementById("hasil").innerHTML =
-      `Total Konsumsi (Iteratif): ${iteratif} kWh<br>
-       Total Konsumsi (Rekursif): ${rekursif} kWh`;
+      `<div class="result">
+        <div><strong>Total Konsumsi (Iteratif):</strong> ${iteratif} kWh</div>
+        <div style="margin-top: 8px;"><strong>Total Konsumsi (Rekursif):</strong> ${rekursif} kWh</div>
+      </div>`;
   }
 
-  // =============================
-  // GRAFIK RUNNING TIME
-   function tampilkanGrafik() {
+  function tampilkanGrafik() {
     const sizes = [10, 50, 100, 200, 500, 1000, 5000];
     const REPEAT = 300;
 
@@ -190,23 +381,21 @@
     sizes.forEach(n => {
       let data = Array.from({ length: n }, () => Math.floor(Math.random() * 10));
 
-      // ===== ITERATIF =====
+      // ITERATIF
       let start = performance.now();
       for (let r = 0; r < REPEAT; r++) {
         let total = 0;
         for (let i = 0; i < data.length; i++) {
           total += data[i];
-          // dummy workload
           for (let j = 0; j < 50; j++) {}
         }
       }
       let end = performance.now();
       timeIteratif.push((end - start) / REPEAT);
 
-      // ===== REKURSIF =====
+      // REKURSIF
       function totalRekDummy(arr, n) {
         if (n === 0) return 0;
-        // dummy workload
         for (let j = 0; j < 50; j++) {}
         return arr[n - 1] + totalRekDummy(arr, n - 1);
       }
@@ -276,3 +465,5 @@
   window.onload = tampilkanGrafik;
 </script>
 
+</body>
+</html>
