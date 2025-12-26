@@ -117,6 +117,14 @@
       background: #7f8c8d;
     }
 
+    button.danger {
+      background: #e74c3c;
+    }
+
+    button.danger:hover {
+      background: #c0392b;
+    }
+
     #inputData {
       margin: 15px 0;
       display: grid;
@@ -137,6 +145,16 @@
       border-radius: 8px;
       margin-top: 15px;
       font-size: 1.1em;
+    }
+
+    .time-result {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      color: #e65100;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 0.95em;
     }
 
     .code-container {
@@ -188,6 +206,18 @@
       margin-top: 20px;
     }
 
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    .info-box strong {
+      color: #1976d2;
+    }
+
     footer {
       text-align: center;
       color: white;
@@ -229,7 +259,7 @@
 
       <div id="inputData"></div>
 
-      <button onclick="hitungTotal()">Hitung Total</button>
+      <button onclick="hitungTotal()">Hitung Total & Ukur Waktu</button>
 
       <div id="hasil"></div>
     </div>
@@ -281,10 +311,11 @@
 
     <div class="box">
       <h2>Grafik Perbandingan Running Time</h2>
-      <p>
-        Grafik berikut menunjukkan perbandingan waktu eksekusi algoritma iteratif dan rekursif
-        berdasarkan ukuran input (jumlah data).
-      </p>
+      <div class="info-box">
+        <strong>Info:</strong> Grafik ini akan diupdate setiap kali Anda menghitung total konsumsi listrik. 
+        Data running time akan ditambahkan berdasarkan ukuran input yang Anda masukkan.
+      </div>
+      <button class="danger" onclick="resetGrafik()">Reset Grafik</button>
       <canvas id="runtimeChart"></canvas>
     </div>
 
@@ -296,6 +327,13 @@
         kompleksitas waktu O(n), algoritma rekursif memiliki overhead pemanggilan fungsi
         yang menyebabkan waktu eksekusi relatif lebih besar.
       </p>
+      <div class="info-box">
+        <strong>Kelas Kompleksitas:</strong>
+        <ul style="margin-top: 10px; margin-left: 20px;">
+          <li><strong>Iteratif:</strong> O(n) - Linear time complexity</li>
+          <li><strong>Rekursif:</strong> O(n) - Linear time complexity dengan overhead function call</li>
+        </ul>
+      </div>
     </div>
 
     <footer>
@@ -307,6 +345,13 @@
   </div>
 
 <script>
+  let myChart = null;
+  let chartData = {
+    sizes: [],
+    timeIteratif: [],
+    timeRekursif: []
+  };
+
   function totalIteratif(data) {
     let total = 0;
     for (let i = 0; i < data.length; i++) {
@@ -340,7 +385,7 @@
       div.className = 'data-input';
       div.innerHTML = `
         <label>Hari ke-${i + 1}:</label>
-        <input type="number" class="data" min="0" placeholder="kWh">
+        <input type="number" class="data" min="0" placeholder="kWh" value="0">
       `;
       container.appendChild(div);
     }
@@ -361,6 +406,25 @@
       return;
     }
 
+    const REPEAT = 1000;
+    const n = data.length;
+
+    // Ukur waktu ITERATIF
+    let startIter = performance.now();
+    for (let r = 0; r < REPEAT; r++) {
+      totalIteratif(data);
+    }
+    let endIter = performance.now();
+    let timeIter = (endIter - startIter) / REPEAT;
+
+    // Ukur waktu REKURSIF
+    let startRek = performance.now();
+    for (let r = 0; r < REPEAT; r++) {
+      totalRekursif(data, data.length);
+    }
+    let endRek = performance.now();
+    let timeRek = (endRek - startRek) / REPEAT;
+
     const iteratif = totalIteratif(data);
     const rekursif = totalRekursif(data, data.length);
 
@@ -368,66 +432,88 @@
       `<div class="result">
         <div><strong>Total Konsumsi (Iteratif):</strong> ${iteratif} kWh</div>
         <div style="margin-top: 8px;"><strong>Total Konsumsi (Rekursif):</strong> ${rekursif} kWh</div>
+      </div>
+      <div class="time-result">
+        <div><strong>⏱️ Running Time (Ukuran Input: ${n}):</strong></div>
+        <div style="margin-top: 5px;">• Iteratif: ${timeIter.toFixed(6)} ms</div>
+        <div>• Rekursif: ${timeRek.toFixed(6)} ms</div>
+        <div style="margin-top: 5px; font-size: 0.9em;">* Rata-rata dari ${REPEAT} kali eksekusi</div>
       </div>`;
+
+    // Tambahkan data ke grafik
+    tambahDataKeGrafik(n, timeIter, timeRek);
   }
 
-  function tampilkanGrafik() {
-    const sizes = [10, 50, 100, 200, 500, 1000, 5000];
-    const REPEAT = 300;
+  function tambahDataKeGrafik(size, timeIter, timeRek) {
+    // Cek apakah ukuran ini sudah ada, kalau ada replace
+    const index = chartData.sizes.indexOf(size);
+    if (index !== -1) {
+      chartData.timeIteratif[index] = timeIter;
+      chartData.timeRekursif[index] = timeRek;
+    } else {
+      chartData.sizes.push(size);
+      chartData.timeIteratif.push(timeIter);
+      chartData.timeRekursif.push(timeRek);
+      
+      // Sort data berdasarkan size
+      const combined = chartData.sizes.map((s, i) => ({
+        size: s,
+        iter: chartData.timeIteratif[i],
+        rek: chartData.timeRekursif[i]
+      }));
+      combined.sort((a, b) => a.size - b.size);
+      
+      chartData.sizes = combined.map(d => d.size);
+      chartData.timeIteratif = combined.map(d => d.iter);
+      chartData.timeRekursif = combined.map(d => d.rek);
+    }
 
-    let timeIteratif = [];
-    let timeRekursif = [];
+    updateGrafik();
+  }
 
-    sizes.forEach(n => {
-      let data = Array.from({ length: n }, () => Math.floor(Math.random() * 10));
+  function updateGrafik() {
+    if (myChart) {
+      myChart.data.labels = chartData.sizes;
+      myChart.data.datasets[0].data = chartData.timeIteratif;
+      myChart.data.datasets[1].data = chartData.timeRekursif;
+      myChart.update();
+    }
+  }
 
-      // ITERATIF
-      let start = performance.now();
-      for (let r = 0; r < REPEAT; r++) {
-        let total = 0;
-        for (let i = 0; i < data.length; i++) {
-          total += data[i];
-          for (let j = 0; j < 50; j++) {}
-        }
-      }
-      let end = performance.now();
-      timeIteratif.push((end - start) / REPEAT);
+  function resetGrafik() {
+    if (confirm("Apakah Anda yakin ingin mereset data grafik?")) {
+      chartData = {
+        sizes: [],
+        timeIteratif: [],
+        timeRekursif: []
+      };
+      updateGrafik();
+    }
+  }
 
-      // REKURSIF
-      function totalRekDummy(arr, n) {
-        if (n === 0) return 0;
-        for (let j = 0; j < 50; j++) {}
-        return arr[n - 1] + totalRekDummy(arr, n - 1);
-      }
-
-      start = performance.now();
-      for (let r = 0; r < REPEAT; r++) {
-        totalRekDummy(data, data.length);
-      }
-      end = performance.now();
-      timeRekursif.push((end - start) / REPEAT);
-    });
-
+  function initGrafik() {
     const ctx = document.getElementById("runtimeChart");
-    new Chart(ctx, {
+    myChart = new Chart(ctx, {
       type: "line",
       data: {
-        labels: sizes,
+        labels: chartData.sizes,
         datasets: [
           {
             label: "Iteratif",
-            data: timeIteratif,
+            data: chartData.timeIteratif,
             borderColor: "#1abc9c",
             backgroundColor: "#1abc9c",
-            pointRadius: 5,
+            pointRadius: 6,
+            pointHoverRadius: 8,
             tension: 0.4
           },
           {
             label: "Rekursif",
-            data: timeRekursif,
+            data: chartData.timeRekursif,
             borderColor: "#e74c3c",
             backgroundColor: "#e74c3c",
-            pointRadius: 5,
+            pointRadius: 6,
+            pointHoverRadius: 8,
             tension: 0.4
           }
         ]
@@ -441,6 +527,13 @@
           title: {
             display: true,
             text: "Perbandingan Running Time Algoritma Iteratif vs Rekursif"
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + context.parsed.y.toFixed(6) + ' ms';
+              }
+            }
           }
         },
         scales: {
@@ -462,7 +555,7 @@
     });
   }
 
-  window.onload = tampilkanGrafik;
+  window.onload = initGrafik;
 </script>
 
 </body>
