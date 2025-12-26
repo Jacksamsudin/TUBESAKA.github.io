@@ -1,10 +1,152 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>TUBES AKA</title>
+  <meta charset="UTF-8">
+  <title>TUBES AKA - Analisis Kompleksitas Algoritma</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f4f6f8;
+    }
+    h1, h2 {
+      color: #2c3e50;
+    }
+    .box {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px 0;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    footer {
+      margin-top: 40px;
+      color: #555;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Halo 👋</h1>
-  <p>Website TUBES AKA berhasil jalan!</p>
+
+<h1>Tugas Besar Analisis Kompleksitas Algoritma</h1>
+
+<div class="box">
+  <h2>Studi Kasus</h2>
+  <p>
+    Studi kasus yang diangkat adalah <b>perhitungan total konsumsi listrik harian</b>
+    berdasarkan data penggunaan listrik (kWh) selama beberapa hari.
+    Permasalahan ini diselesaikan menggunakan dua pendekatan algoritma:
+    <b>iteratif</b> dan <b>rekursif</b>.
+  </p>
+</div>
+
+<div class="box">
+  <h2>Input Data Konsumsi Listrik</h2>
+  <label>Jumlah hari:</label><br>
+  <input type="number" id="jumlahHari" min="1"><br>
+  <button onclick="buatInput()">Buat Input</button>
+
+  <div id="inputData"></div>
+  <button onclick="hitung()">Hitung Total</button>
+
+  <div class="result" id="hasil"></div>
+</div>
+
+<div class="box">
+  <h2>Algoritma yang Digunakan</h2>
+
+  <h3>1. Algoritma Iteratif</h3>
+  <p>
+    Algoritma iteratif menjumlahkan data konsumsi listrik menggunakan perulangan.
+    Setiap elemen array diproses satu per satu hingga seluruh data dijumlahkan.
+  </p>
+  <p><b>Kompleksitas Waktu:</b> O(n)</p>
+
+  <h3>2. Algoritma Rekursif</h3>
+  <p>
+    Algoritma rekursif menjumlahkan data dengan memanggil fungsi secara berulang
+    hingga mencapai kondisi dasar (base case).
+  </p>
+  <p><b>Kompleksitas Waktu:</b> O(n)</p>
+</div>
+
+<div class="box">
+  <h2>Analisis Perbandingan</h2>
+  <p>
+    Berdasarkan hasil pengujian, kedua algoritma memiliki kompleksitas waktu yang sama,
+    yaitu O(n). Namun, algoritma iteratif lebih efisien dalam penggunaan memori
+    karena tidak memerlukan stack pemanggilan fungsi seperti pada algoritma rekursif.
+  </p>
+</div>
+
+<footer>
+  <p>
+    Tugas Besar Analisis Kompleksitas Algoritma<br>
+    Program Studi Informatika – Telkom University
+  </p>
+</footer>
+
+<script>
+  function buatInput() {
+    const n = document.getElementById("jumlahHari").value;
+    const container = document.getElementById("inputData");
+    container.innerHTML = "";
+
+    for (let i = 0; i < n; i++) {
+      container.innerHTML += `
+        Hari ke-${i + 1}:
+        <input type="number" class="data"><br>
+      `;
+    }
+  }
+
+  function totalIteratif(data) {
+    let total = 0;
+    for (let i = 0; i < data.length; i++) {
+      total += data[i];
+    }
+    return total;
+  }
+
+  function totalRekursif(data, n) {
+    if (n === 0) return 0;
+    return data[n - 1] + totalRekursif(data, n - 1);
+  }
+
+  function hitung() {
+    const inputs = document.querySelectorAll(".data");
+    let data = [];
+
+    inputs.forEach(input => {
+      data.push(parseInt(input.value));
+    });
+
+    const iteratif = totalIteratif(data);
+    const rekursif = totalRekursif(data, data.length);
+
+    document.getElementById("hasil").innerHTML =
+      "Total Iteratif: " + iteratif + " kWh<br>" +
+      "Total Rekursif: " + rekursif + " kWh";
+  }
+</script>
+
 </body>
 </html>
