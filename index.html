@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>TUBES AKA - Analisis Kompleksitas Algoritma</title>
+  <title>TUBES AKA – Analisis Kompleksitas Algoritma</title>
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -23,24 +23,6 @@
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    input, button {
-      padding: 8px;
-      margin: 6px 0;
-    }
-    button {
-      background-color: #3498db;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #2980b9;
-    }
-    .result {
-      font-weight: bold;
-      margin-top: 10px;
-    }
     footer {
       margin-top: 40px;
       font-size: 14px;
@@ -59,23 +41,9 @@
   <p>
     Studi kasus yang digunakan adalah <b>perhitungan total konsumsi listrik harian</b>
     berdasarkan data penggunaan listrik (kWh). Permasalahan ini diselesaikan menggunakan
-    algoritma <b>iteratif</b> dan <b>rekursif</b> untuk dibandingkan dari sisi efisiensi.
+    dua pendekatan algoritma, yaitu <b>iteratif</b> dan <b>rekursif</b>, untuk dibandingkan
+    dari sisi efisiensi.
   </p>
-</div>
-
-<div class="box">
-  <h2>Input Data Konsumsi Listrik</h2>
-
-  <label>Jumlah Hari:</label><br>
-  <input type="number" id="jumlahHari" min="1">
-  <br>
-  <button onclick="buatInput()">Buat Input</button>
-
-  <div id="inputData"></div>
-
-  <button onclick="hitungTotal()">Hitung Total</button>
-
-  <div class="result" id="hasil"></div>
 </div>
 
 <div class="box">
@@ -83,33 +51,26 @@
 
   <h3>Algoritma Iteratif</h3>
   <p>
-    Algoritma iteratif menggunakan perulangan untuk menjumlahkan seluruh data konsumsi.
+    Algoritma iteratif menggunakan perulangan untuk menjumlahkan seluruh elemen data
+    konsumsi listrik satu per satu.
   </p>
   <p><b>Kompleksitas Waktu:</b> O(n)</p>
 
   <h3>Algoritma Rekursif</h3>
   <p>
-    Algoritma rekursif menggunakan pemanggilan fungsi berulang hingga kondisi dasar.
+    Algoritma rekursif menggunakan pemanggilan fungsi secara berulang hingga mencapai
+    kondisi dasar (base case).
   </p>
   <p><b>Kompleksitas Waktu:</b> O(n)</p>
 </div>
 
 <div class="box">
-  <h2>Grafik Running Time (Realtime)</h2>
+  <h2>Grafik Perbandingan Running Time</h2>
   <p>
-    Grafik akan diperbarui secara langsung setiap kali pengguna menekan tombol
-    <b>Hitung Total</b>.
+    Grafik berikut menunjukkan perbandingan running time algoritma iteratif dan rekursif
+    pada berbagai ukuran input (1 – 10000).
   </p>
   <canvas id="runtimeChart"></canvas>
-</div>
-
-<div class="box">
-  <h2>Analisis Perbandingan</h2>
-  <p>
-    Walaupun kedua algoritma memiliki kompleksitas waktu O(n), algoritma iteratif
-    menunjukkan waktu eksekusi yang lebih stabil dibandingkan algoritma rekursif
-    akibat tidak adanya overhead pemanggilan fungsi.
-  </p>
 </div>
 
 <footer>
@@ -120,9 +81,9 @@
 </footer>
 
 <script>
-/* ======================================================
+/* =====================================================
    ALGORITMA
-====================================================== */
+===================================================== */
 function totalIteratif(data) {
   let total = 0;
   for (let i = 0; i < data.length; i++) {
@@ -136,126 +97,91 @@ function totalRekursif(data, n) {
   return data[n - 1] + totalRekursif(data, n - 1);
 }
 
-/* ======================================================
-   INPUT DINAMIS
-====================================================== */
-function buatInput() {
-  const n = parseInt(document.getElementById("jumlahHari").value);
-  const container = document.getElementById("inputData");
-  container.innerHTML = "";
+/* =====================================================
+   PENGUJIAN RUNNING TIME
+===================================================== */
+const sizes = [1, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
+const REPEAT = 200;
 
-  if (isNaN(n) || n <= 0) {
-    container.innerHTML = "<p>Masukkan jumlah hari yang valid.</p>";
-    return;
+let timeIteratif = [];
+let timeRekursif = [];
+
+sizes.forEach(n => {
+  const data = Array.from({ length: n }, () => Math.floor(Math.random() * 10));
+
+  // ================= ITERATIF =================
+  let start = performance.now();
+  for (let r = 0; r < REPEAT; r++) {
+    totalIteratif(data);
+    for (let j = 0; j < 50; j++) {} // dummy workload
+  }
+  let end = performance.now();
+  timeIteratif.push((end - start) / REPEAT);
+
+  // ================= REKURSIF =================
+  function rekDummy(arr, k) {
+    if (k === 0) return 0;
+    for (let j = 0; j < 50; j++) {} // dummy workload
+    return arr[k - 1] + rekDummy(arr, k - 1);
   }
 
-  for (let i = 0; i < n; i++) {
-    container.innerHTML += `
-      Hari ke-${i + 1}:
-      <input type="number" class="data" min="0"><br>
-    `;
+  start = performance.now();
+  for (let r = 0; r < REPEAT; r++) {
+    rekDummy(data, data.length);
   }
-}
+  end = performance.now();
+  timeRekursif.push((end - start) / REPEAT);
+});
 
-/* ======================================================
-   GRAFIK REALTIME
-====================================================== */
-let runtimeChart;
+/* =====================================================
+   GRAFIK
+===================================================== */
+const ctx = document.getElementById("runtimeChart");
 
-function initChart() {
-  const ctx = document.getElementById("runtimeChart");
-
-  runtimeChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: [],
-      datasets: [
-        {
-          label: "Iteratif",
-          data: [],
-          borderColor: "#1abc9c",
-          backgroundColor: "#1abc9c",
-          pointRadius: 5,
-          tension: 0.4
-        },
-        {
-          label: "Rekursif",
-          data: [],
-          borderColor: "#e74c3c",
-          backgroundColor: "#e74c3c",
-          pointRadius: 5,
-          tension: 0.4
-        }
-      ]
+new Chart(ctx, {
+  type: "line",
+  data: {
+    labels: sizes,
+    datasets: [
+      {
+        label: "Iteratif",
+        data: timeIteratif,
+        borderWidth: 2,
+        tension: 0.3
+      },
+      {
+        label: "Rekursif",
+        data: timeRekursif,
+        borderWidth: 2,
+        tension: 0.3
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: "Perbandingan Running Time Algoritma Iteratif vs Rekursif"
+      }
     },
-    options: {
-      responsive: true,
-      plugins: {
+    scales: {
+      x: {
         title: {
           display: true,
-          text: "Perbandingan Running Time Realtime"
+          text: "Ukuran Input (n)"
         }
       },
-      scales: {
-        x: {
-          title: {
-            display: true,
-            text: "Ukuran Input (n)"
-          }
+      y: {
+        title: {
+          display: true,
+          text: "Running Time (ms)"
         },
-        y: {
-          title: {
-            display: true,
-            text: "Running Time (ms)"
-          },
-          beginAtZero: true
-        }
+        beginAtZero: true
       }
     }
-  });
-}
-
-/* ======================================================
-   HITUNG + UPDATE GRAFIK
-====================================================== */
-function hitungTotal() {
-  const inputs = document.querySelectorAll(".data");
-  let data = [];
-
-  inputs.forEach(input => {
-    let value = parseInt(input.value);
-    data.push(isNaN(value) ? 0 : value);
-  });
-
-  const n = data.length;
-
-  // ITERATIF
-  let start = performance.now();
-  const iteratif = totalIteratif(data);
-  let end = performance.now();
-  let timeIter = end - start;
-
-  // REKURSIF
-  start = performance.now();
-  const rekursif = totalRekursif(data, n);
-  end = performance.now();
-  let timeRek = end - start;
-
-  document.getElementById("hasil").innerHTML =
-    `Total Konsumsi (Iteratif): ${iteratif} kWh<br>
-     Total Konsumsi (Rekursif): ${rekursif} kWh`;
-
-  // UPDATE GRAFIK
-  runtimeChart.data.labels.push(n);
-  runtimeChart.data.datasets[0].data.push(timeIter);
-  runtimeChart.data.datasets[1].data.push(timeRek);
-  runtimeChart.update();
-}
-
-/* ======================================================
-   INIT
-====================================================== */
-window.onload = initChart;
+  }
+});
 </script>
 
 </body>
