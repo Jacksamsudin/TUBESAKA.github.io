@@ -180,9 +180,9 @@
 
   // =============================
   // GRAFIK RUNNING TIME
-  function tampilkanGrafik() {
-    const sizes = [1, 10, 100, 500, 1000, 5000, 10000];
-    const REPEAT = 20;
+   function tampilkanGrafik() {
+    const sizes = [10, 50, 100, 200, 500, 1000, 5000];
+    const REPEAT = 300;
 
     let timeIteratif = [];
     let timeRekursif = [];
@@ -190,18 +190,30 @@
     sizes.forEach(n => {
       let data = Array.from({ length: n }, () => Math.floor(Math.random() * 10));
 
-      // ITERATIF
+      // ===== ITERATIF =====
       let start = performance.now();
-      for (let i = 0; i < REPEAT; i++) {
-        totalIteratif(data);
+      for (let r = 0; r < REPEAT; r++) {
+        let total = 0;
+        for (let i = 0; i < data.length; i++) {
+          total += data[i];
+          // dummy workload
+          for (let j = 0; j < 50; j++) {}
+        }
       }
       let end = performance.now();
       timeIteratif.push((end - start) / REPEAT);
 
-      // REKURSIF
+      // ===== REKURSIF =====
+      function totalRekDummy(arr, n) {
+        if (n === 0) return 0;
+        // dummy workload
+        for (let j = 0; j < 50; j++) {}
+        return arr[n - 1] + totalRekDummy(arr, n - 1);
+      }
+
       start = performance.now();
-      for (let i = 0; i < REPEAT; i++) {
-        totalRekursif(data, data.length);
+      for (let r = 0; r < REPEAT; r++) {
+        totalRekDummy(data, data.length);
       }
       end = performance.now();
       timeRekursif.push((end - start) / REPEAT);
@@ -216,16 +228,18 @@
           {
             label: "Iteratif",
             data: timeIteratif,
-            borderColor: "blue",
-            backgroundColor: "blue",
-            tension: 0.3
+            borderColor: "#1abc9c",
+            backgroundColor: "#1abc9c",
+            pointRadius: 5,
+            tension: 0.4
           },
           {
             label: "Rekursif",
             data: timeRekursif,
-            borderColor: "red",
-            backgroundColor: "red",
-            tension: 0.3
+            borderColor: "#e74c3c",
+            backgroundColor: "#e74c3c",
+            pointRadius: 5,
+            tension: 0.4
           }
         ]
       },
@@ -234,6 +248,10 @@
         plugins: {
           legend: {
             position: "top"
+          },
+          title: {
+            display: true,
+            text: "Perbandingan Running Time Algoritma Iteratif vs Rekursif"
           }
         },
         scales: {
@@ -247,7 +265,8 @@
             title: {
               display: true,
               text: "Running Time (ms)"
-            }
+            },
+            beginAtZero: true
           }
         }
       }
